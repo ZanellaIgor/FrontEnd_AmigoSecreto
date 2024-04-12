@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { SearchResult } from '../types/SearchResul';
 import { SearchForm } from './SearchForm';
+import * as api from '../api/site';
+import { SearchReveal } from './SearchReveal';
 
 type Props = {
   id: number;
@@ -10,12 +12,22 @@ type Props = {
 
 export const Search = ({ id }: Props) => {
   const [results, setResults] = useState<SearchResult>();
-  console.log(results);
-  const handleSearchButton = async (cpf: string) => {};
+  const [loading, setLoading] = useState(false);
+
+  const handleSearchButton = async (cpf: string) => {
+    setLoading(true);
+    if (!cpf) return;
+    const result = await api.searchCPF(id, cpf);
+    setLoading(false);
+    if (!result) return alert('CPF não encontrado');
+    setResults(result);
+  };
   return (
     <section className="bg-gray-900 p-5 roounded">
-      {!results && <SearchForm onSearchButton={handleSearchButton} />}
-      {/*    {results && <SearchResults results={results} />} */}
+      {!results && (
+        <SearchForm onSearchButton={handleSearchButton} loading={loading} />
+      )}
+      {results && <SearchReveal results={results} />}
     </section>
   );
 };

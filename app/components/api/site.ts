@@ -12,7 +12,7 @@ export const searchCPF = async (
   eventId: number,
   cpf: string
 ): Promise<SearchResult | false> => {
-  const json = await api.get(`/events/${eventId}/search/cpf=${cpf}`);
+  const json = await api.get(`/events/${eventId}/search?cpf=${cpf}`);
   if (json.data.person && json.data.personMatched) {
     return json.data as SearchResult;
   }
