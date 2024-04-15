@@ -10,6 +10,7 @@ export const pingAdmin = async () => {
         Authorization: `Token ${token}`,
       },
     });
+    return true;
   } catch (err) {
     return false;
   }
