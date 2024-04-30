@@ -1,14 +1,11 @@
 import { redirect } from 'next/navigation';
 import { pingAdmin } from '../components/api/server';
+import { AdminPage } from '../components/admin/AdminPage';
 
 const Page = async () => {
   const logged = await pingAdmin();
   if (!logged) return redirect('/admin/login');
-  return (
-    <div>
-      <h1 className="text-center text-3xl">Admin</h1>
-    </div>
-  );
+  return <AdminPage />;
 };
 
 export default Page;
