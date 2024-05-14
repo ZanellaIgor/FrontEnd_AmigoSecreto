@@ -4,6 +4,7 @@ import { getGroups, getPeople } from '../../api/admin';
 import { GroupItemNotFound, GroupItemSkeleton } from '../groups/GroupItem';
 import { PersonComplete } from '../../types/PersonComplete';
 import { PersonItemNotFound, PersonItemSkeleton } from './PersonItem';
+import { PersonAdd } from './PersonAdd';
 
 type Props = {
   eventId: number;
