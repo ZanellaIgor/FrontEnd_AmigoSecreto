@@ -57,5 +57,9 @@ export const EventItemSkeleton = () => {
 };
 
 export const EventItemNotFound = () => {
-  return <div>Nenhum evento encontrado</div>;
+  return (
+    <div className="text-center p-y4 text-gray-500">
+      Nenhum evento encontrado
+    </div>
+  );
 };

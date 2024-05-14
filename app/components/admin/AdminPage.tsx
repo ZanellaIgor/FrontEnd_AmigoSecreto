@@ -11,7 +11,7 @@ import {
 import { ItemButton } from './ItemButton';
 import { FaPlus } from 'react-icons/fa';
 import { ModalScreens } from '../types/ModalScreens';
-import { Modal } from './Moda';
+import { Modal } from './Modal';
 import { EventAdd } from './events/EventAdd';
 import { EventEdit } from './events/EventEdit';
 
@@ -37,6 +37,7 @@ export const AdminPage = () => {
   useEffect(() => {
     loadEvents();
   }, []);
+
   return (
     <div>
       <div className="p-3 flex items-center">
