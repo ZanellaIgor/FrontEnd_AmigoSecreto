@@ -3,8 +3,13 @@ import { Group } from '../../types/Group';
 import { getGroups, getPeople } from '../../api/admin';
 import { GroupItemNotFound, GroupItemSkeleton } from '../groups/GroupItem';
 import { PersonComplete } from '../../types/PersonComplete';
-import { PersonItemNotFound, PersonItemSkeleton } from './PersonItem';
+import {
+  PersonItem,
+  PersonItemNotFound,
+  PersonItemSkeleton,
+} from './PersonItem';
 import { PersonAdd } from './PersonAdd';
+import { PersonEdit } from './PersonEdit';
 
 type Props = {
   eventId: number;
@@ -34,6 +39,7 @@ export const EventTabPeople = ({ eventId }: Props) => {
   //People
   const loadPeople = async () => {
     if (selectedGroupId > 0) {
+      setSelectedPerson(null);
       setPeopleLoading(true);
       setPeople([]);
       //setSelectedGroupId(0);
@@ -49,6 +55,9 @@ export const EventTabPeople = ({ eventId }: Props) => {
     loadPeople();
   }, [selectedGroupId]);
 
+  const handleEditButton = (person: PersonComplete) => {
+    setSelectedPerson(person);
+  };
   return (
     <div>
       <div className="my-3">
@@ -80,13 +89,19 @@ export const EventTabPeople = ({ eventId }: Props) => {
                 refreshAction={loadPeople}
               />
             )}
+            {selectedPerson && (
+              <PersonEdit person={selectedPerson} refreshAction={loadPeople} />
+            )}
           </div>
           {!peopleLoading &&
             people.length > 0 &&
             people.map((person) => (
-              <div key={person.id} className="my-3">
-                {person.name}
-              </div>
+              <PersonItem
+                key={person.id}
+                item={person}
+                refreschAction={loadPeople}
+                onEdit={handleEditButton}
+              />
             ))}
           {peopleLoading && (
             <>
