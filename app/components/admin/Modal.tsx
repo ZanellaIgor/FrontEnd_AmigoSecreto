@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { IoMdClose } from 'react-icons/io';
 
 type Props = {
   onClose: () => void;
@@ -13,7 +14,7 @@ export const Modal = ({ onClose, children }: Props) => {
           className="w-8 h-8 rounded-full bg-gray-800 text-white text-lg 
         flex justify-center items-center cursor-pointer hover:bg-gray-500"
         >
-          x
+          {<IoMdClose />}
         </div>
         <div className="bg-gray-800 w-full max-w-xl p-4 rounded-md mt-1 ">
           {children}

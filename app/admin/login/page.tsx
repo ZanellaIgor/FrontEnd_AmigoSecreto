@@ -13,7 +13,6 @@ const Page = () => {
   const [loading, setLoading] = useState(false);
   const [warning, setWarning] = useState('');
   const handleLoginButton = async () => {
-    console.log('ss');
     if (passwordInput) {
       setWarning('');
       setLoading(true);

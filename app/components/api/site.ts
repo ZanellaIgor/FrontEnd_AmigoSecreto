@@ -1,4 +1,5 @@
 import { Event } from '../types/Event';
+import { Person } from '../types/Person';
 import { SearchResult } from '../types/SearchResul';
 import { api } from './axios';
 
@@ -15,6 +16,16 @@ export const searchCPF = async (
   const json = await api.get(`/events/${eventId}/search?cpf=${cpf}`);
   if (json.data.person && json.data.personMatched) {
     return json.data as SearchResult;
+  }
+  return false;
+};
+
+export const getEventByPerson = async (
+  cpf: string
+): Promise<Event[] | false> => {
+  const json = await api.get(`/login/search?cpf=${cpf}`);
+  if (json.data) {
+    return json.data as Event[] | [];
   }
   return false;
 };

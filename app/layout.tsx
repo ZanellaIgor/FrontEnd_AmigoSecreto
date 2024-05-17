@@ -14,7 +14,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-br">
-      <body className={'bg-gray-950 text-gray-100'}>{children}</body>
+      <body className={'flex flex-col min-h-screen bg-gray-950 text-gray-100 '}>
+        <main className="flex-1">{children}</main>
+        <footer className="h-20 justify-center flex items-center text-sm  bg-gray-800 border-top border-white p-1">
+          Adaptado por Igor Zanella
+        </footer>
+      </body>
     </html>
   );
 }
