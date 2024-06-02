@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { escapeCPF } from '../utils/functions/escapeCPF';
 type Props = {
   onSearchButton: (cpf: string) => void;

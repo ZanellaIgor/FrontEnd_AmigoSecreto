@@ -1,9 +1,8 @@
 'use client';
-
 import { useState } from 'react';
+import * as api from '../api/site';
 import { SearchResult } from '../types/SearchResul';
 import { SearchForm } from './SearchForm';
-import * as api from '../api/site';
 import { SearchReveal } from './SearchReveal';
 
 type Props = {
