@@ -1,8 +1,8 @@
-import { getCookie, getCookies } from 'cookies-next';
-import { api } from './axios';
+import { getCookie } from 'cookies-next';
 import { Event } from '../types/Event';
 import { Group } from '../types/Group';
 import { PersonComplete } from '../types/PersonComplete';
+import { api } from './axios';
 //login
 export const login = async (password: string) => {
   try {
@@ -21,7 +21,6 @@ export const getEvents = async () => {
       Authorization: `Token ${token}`,
     },
   });
-  console.log(json);
   return (json.data.events as Event[]) ?? [];
 };
 

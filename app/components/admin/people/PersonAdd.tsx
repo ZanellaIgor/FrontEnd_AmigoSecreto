@@ -1,13 +1,13 @@
 import { useState } from 'react';
+import { z } from 'zod';
+import { addPerson } from '../../api/admin';
+import { escapeCPF } from '../../utils/functions/escapeCPF';
 import {
   ErrorItem,
   getErrosFromZod,
 } from '../../utils/functions/getErrorsFromZod';
-import { InputField } from '../InputField';
 import { Button } from '../Button';
-import { escapeCPF } from '../../utils/functions/escapeCPF';
-import { z } from 'zod';
-import { addPerson } from '../../api/admin';
+import { InputField } from '../InputField';
 
 type Props = {
   eventId: number;

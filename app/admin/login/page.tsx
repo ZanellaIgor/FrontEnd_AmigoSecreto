@@ -13,19 +13,27 @@ const Page = () => {
   const [loading, setLoading] = useState(false);
   const [warning, setWarning] = useState('');
   const handleLoginButton = async () => {
-    if (passwordInput) {
-      setWarning('');
-      setLoading(true);
-      const token = await login(passwordInput);
-      if (!token) {
-        setWarning('Acesso negado!');
+    setLoading(true);
+    try {
+      if (passwordInput) {
+        setWarning('');
+        const token = await login(passwordInput);
+        if (!token) {
+          throw new Error('Token não obtido');
+        } else {
+          setCookie('token', token);
+          router.push('/admin');
+        }
       } else {
-        setCookie('token', token);
-        router.push('/admin');
+        throw new Error('Senha não informada');
       }
+    } catch (error) {
+      setWarning('Erro ao tentar autenticação, tente mais tarde');
+    } finally {
       setLoading(false);
     }
   };
+
   return (
     <div className="text-center py-4">
       <p className="text-lg">Qual a Senha Secreta?</p>

@@ -1,11 +1,9 @@
 import { Event } from '../types/Event';
-import { Person } from '../types/Person';
 import { SearchResult } from '../types/SearchResul';
 import { api } from './axios';
 
 export const getEvents = async (id: number): Promise<Event> => {
   const json = await api.get(`/events/${id}`);
-  console.log(json);
   return (json.data.event as Event) ?? false;
 };
 
