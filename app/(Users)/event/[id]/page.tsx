@@ -1,6 +1,6 @@
+import { Search } from '@/app/components/site/Seach';
 import { redirect } from 'next/navigation';
 import { getEvents } from '../../../components/api/site';
-import { Search } from '@/app/components/site/Seach';
 
 type Props = { params: { id: string } };
 

@@ -26,8 +26,10 @@ bun dev
 
 Abra [http://localhost:3000](http://localhost:3000) no seu navegador para ver o resultado.
 
-OBS: Para executar este projeto completamente, é necessário baixar também o projeto Backend da aplicação, responsável pelo CRUD no banco de dados.
-Você pode baixar o projeto na área de repositórios do meu portfólio.
+**OBS: Para executar este projeto completamente, é necessário baixar também o projeto Backend da aplicação, responsável pelo CRUD no banco de dados.**
+**Você pode baixar o projeto na área de repositórios do meu portfólio.**
+
+**OBS²: Para fazer o login é necessário informar a data atual, por exemplo, no dia 31/12/2025 deve ser digitado "31122025".**
 
 ## Saiba Mais
 
