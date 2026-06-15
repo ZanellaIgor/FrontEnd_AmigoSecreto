@@ -5,12 +5,12 @@ export type ErrorItem = {
   message: string;
 };
 
-export const getErrosFromZod = (errors: ZodError) => {
+export const getErrorsFromZod = (errors: ZodError) => {
   const errorList: ErrorItem[] = [];
-  for (let i in errors.errors) {
+  for (const issue of errors.issues) {
     errorList.push({
-      field: errors.errors[i].path[0].toString(),
-      message: errors.errors[i].message,
+      field: issue.path[0].toString(),
+      message: issue.message,
     });
   }
   return errorList;

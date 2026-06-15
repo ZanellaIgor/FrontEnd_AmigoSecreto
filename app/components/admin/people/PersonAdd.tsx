@@ -1,19 +1,21 @@
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { z } from 'zod';
-import { addPerson } from '../../api/admin';
-import { escapeCPF } from '../../utils/functions/escapeCPF';
+import { addPerson } from '@/lib/api/admin';
+import { escapeCPF } from '@/lib/utils/escapeCPF';
 import {
   ErrorItem,
-  getErrosFromZod,
-} from '../../utils/functions/getErrorsFromZod';
-import { Button } from '../Button';
-import { InputField } from '../InputField';
+  getErrorsFromZod,
+} from '@/lib/utils/getErrorsFromZod';
+import { Button } from '@/app/components/ui/Button';
+import { InputField } from '@/app/components/ui/InputField';
 
 type Props = {
   eventId: number;
   groupId: number;
   refreshAction: () => void;
 };
+
 export const PersonAdd = ({ eventId, groupId, refreshAction }: Props) => {
   const [nameField, setNameField] = useState('');
   const [cpfField, setCpfField] = useState('');
@@ -22,12 +24,13 @@ export const PersonAdd = ({ eventId, groupId, refreshAction }: Props) => {
 
   const personSchema = z.object({
     nameField: z.string().min(1, 'Preencha o nome da pessoa'),
-    cpfField: z.string().length(11, 'CPF inválido'),
+    cpfField: z.string().length(11, 'CPF inválido'),
   });
+
   const handleSaveButton = async () => {
     setErrors([]);
     const data = personSchema.safeParse({ nameField, cpfField });
-    if (!data.success) return setErrors(getErrosFromZod(data.error));
+    if (!data.success) return setErrors(getErrorsFromZod(data.error));
     setLoading(true);
     const newPerson = await addPerson(eventId, groupId, {
       name: nameField,
@@ -38,34 +41,46 @@ export const PersonAdd = ({ eventId, groupId, refreshAction }: Props) => {
       setNameField('');
       setCpfField('');
       refreshAction();
+      toast.success('Participante adicionado');
     } else {
-      alert('Ocorreu um erro');
+      toast.error('Não foi possível adicionar o participante');
     }
   };
+
   return (
-    <div>
-      <h4 className="text-xl">Novo Participante:</h4>
+    <form
+      className="space-y-4"
+      onSubmit={(e) => {
+        e.preventDefault();
+        void handleSaveButton();
+      }}
+    >
       <InputField
+        label="Nome"
         value={nameField}
         onChange={(e) => setNameField(e.target.value)}
-        placeholder="Digite o nome da Pessoa"
+        placeholder="Nome completo"
         errorMessage={errors?.find((e) => e.field === 'nameField')?.message}
         disabled={loading}
       />
       <InputField
+        label="CPF"
         value={cpfField}
         onChange={(e) => setCpfField(escapeCPF(e.target.value))}
-        placeholder="Digite o CPF da Pessoa"
+        placeholder="Somente números"
         errorMessage={errors?.find((e) => e.field === 'cpfField')?.message}
         disabled={loading}
       />
-      <div>
+      <div className="flex justify-end">
         <Button
-          onClick={handleSaveButton}
-          value={`${loading ? 'Adicionando...' : 'Adicionar'}`}
+          value="Adicionar participante"
+          type="submit"
+          loading={loading}
           disabled={loading}
+          fullWidth={false}
+          className="min-w-44"
         />
       </div>
-    </div>
+    </form>
   );
 };

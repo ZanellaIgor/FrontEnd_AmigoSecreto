@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import { getGroups, getPeople } from '../../api/admin';
-import { Group } from '../../types/Group';
-import { PersonComplete } from '../../types/PersonComplete';
+import { getGroups, getPeople } from '@/lib/api/admin';
+import { Group } from '@/lib/types/Group';
+import { PersonComplete } from '@/lib/types/PersonComplete';
+import { FormSection } from '@/app/components/ui/FormSection';
+import { SelectField } from '@/app/components/ui/SelectField';
 import { GroupItemNotFound, GroupItemSkeleton } from '../groups/GroupItem';
 import { PersonAdd } from './PersonAdd';
 import { PersonEdit } from './PersonEdit';
@@ -9,74 +11,109 @@ import {
   PersonItem,
   PersonItemNotFound,
   PersonItemSkeleton,
-} from './PersonItem';
+} from '../people/PersonItem';
 
 type Props = {
   eventId: number;
 };
+
 export const EventTabPeople = ({ eventId }: Props) => {
   const [groups, setGroups] = useState<Group[]>([]);
   const [selectedGroupId, setSelectedGroupId] = useState(0);
   const [groupLoading, setGroupLoading] = useState(true);
+  const [loadedGroupEventId, setLoadedGroupEventId] = useState<number | null>(
+    null
+  );
   const [people, setPeople] = useState<PersonComplete[]>([]);
-  const [peopleLoading, setPeopleLoading] = useState(false);
+  const [fetchedPeopleKey, setFetchedPeopleKey] = useState('');
   const [selectedPerson, setSelectedPerson] = useState<PersonComplete | null>(
     null
   );
 
-  const loadGroups = async () => {
-    setSelectedGroupId(0);
-    setGroupLoading(true);
-    const groupList = await getGroups(eventId);
-    setGroupLoading(false);
-    setGroups(groupList);
-  };
+  const peopleKey =
+    selectedGroupId > 0 ? `${eventId}-${selectedGroupId}` : '';
+  const peopleLoading =
+    peopleKey !== '' && fetchedPeopleKey !== peopleKey;
+  const isGroupLoading = groupLoading || loadedGroupEventId !== eventId;
 
   useEffect(() => {
-    loadGroups();
-  }, []);
+    let cancelled = false;
 
-  //People
+    void (async () => {
+      const groupList = await getGroups(eventId);
+      if (!cancelled) {
+        setSelectedGroupId(0);
+        setGroups(groupList);
+        setLoadedGroupEventId(eventId);
+        setGroupLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [eventId]);
+
   const loadPeople = async () => {
-    if (selectedGroupId > 0) {
-      setSelectedPerson(null);
-      setPeopleLoading(true);
-      setPeople([]);
-      const peopleList = await getPeople(eventId, selectedGroupId);
-      setPeopleLoading(false);
-      setPeople(peopleList);
-    }
+    if (selectedGroupId <= 0) return;
+
+    setSelectedPerson(null);
+    const key = `${eventId}-${selectedGroupId}`;
+    setFetchedPeopleKey('');
+    const peopleList = await getPeople(eventId, selectedGroupId);
+    setPeople(peopleList);
+    setFetchedPeopleKey(key);
   };
 
   useEffect(() => {
-    loadPeople();
-  }, [selectedGroupId]);
+    if (selectedGroupId <= 0) return;
 
-  const handleEditButton = (person: PersonComplete) => {
-    setSelectedPerson(person);
-  };
+    let cancelled = false;
+    const key = `${eventId}-${selectedGroupId}`;
+
+    void (async () => {
+      const peopleList = await getPeople(eventId, selectedGroupId);
+      if (!cancelled) {
+        setSelectedPerson(null);
+        setPeople(peopleList);
+        setFetchedPeopleKey(key);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [eventId, selectedGroupId]);
+
   return (
-    <div>
-      <div className="my-3">
-        {!groupLoading && groups.length > 0 && (
-          <select
-            className="w-full bg-gray-700 text-white text-xl p-3 outline-none"
-            onChange={(e) => setSelectedGroupId(Number(e.target.value))}
-          >
-            <option value={0}>Selecione um grupo</option>
-            {groups.map((group) => (
-              <option key={group.id} value={group.id}>
-                {group.name}
-              </option>
-            ))}
-          </select>
+    <div className="space-y-4">
+      <div>
+        {!isGroupLoading && groups.length > 0 && (
+          <SelectField
+            label="Grupo"
+            value={selectedGroupId}
+            onChange={setSelectedGroupId}
+            placeholder="Selecione um grupo"
+            options={groups.map((group) => ({
+              value: group.id,
+              label: group.name,
+            }))}
+          />
         )}
-        {groupLoading && <GroupItemSkeleton />}
-        {!groupLoading && groups.length === 0 && <GroupItemNotFound />}
+        {isGroupLoading && <GroupItemSkeleton />}
+        {!isGroupLoading && groups.length === 0 && <GroupItemNotFound />}
       </div>
+
       {selectedGroupId > 0 && (
         <>
-          <div className="border border-dashed p-3 my-3">
+          <FormSection
+            title={selectedPerson ? 'Editar participante' : 'Novo participante'}
+            description={
+              selectedPerson
+                ? 'Atualize nome e CPF do participante.'
+                : 'Adicione quem vai participar deste grupo.'
+            }
+          >
             {!selectedPerson && (
               <PersonAdd
                 eventId={eventId}
@@ -85,26 +122,36 @@ export const EventTabPeople = ({ eventId }: Props) => {
               />
             )}
             {selectedPerson && (
-              <PersonEdit person={selectedPerson} refreshAction={loadPeople} />
-            )}
-          </div>
-          {!peopleLoading &&
-            people.length > 0 &&
-            people.map((person) => (
-              <PersonItem
-                key={person.id}
-                item={person}
-                refreschAction={loadPeople}
-                onEdit={handleEditButton}
+              <PersonEdit
+                person={selectedPerson}
+                refreshAction={loadPeople}
+                onCancel={() => setSelectedPerson(null)}
               />
-            ))}
-          {peopleLoading && (
-            <>
-              <PersonItemSkeleton />
-              <PersonItemSkeleton />{' '}
-            </>
-          )}
-          {!peopleLoading && people.length === 0 && <PersonItemNotFound />}
+            )}
+          </FormSection>
+
+          <div>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
+              Participantes do grupo
+            </p>
+            {!peopleLoading &&
+              people.length > 0 &&
+              people.map((person) => (
+                <PersonItem
+                  key={person.id}
+                  item={person}
+                  refreschAction={loadPeople}
+                  onEdit={setSelectedPerson}
+                />
+              ))}
+            {peopleLoading && (
+              <>
+                <PersonItemSkeleton />
+                <PersonItemSkeleton />
+              </>
+            )}
+            {!peopleLoading && people.length === 0 && <PersonItemNotFound />}
+          </div>
         </>
       )}
     </div>

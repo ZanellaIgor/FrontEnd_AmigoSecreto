@@ -1,24 +1,50 @@
+'use client';
+
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa';
-import { PersonComplete } from '../../types/PersonComplete';
+import { toast } from 'sonner';
+import { useConfirm } from '@/app/components/providers/ConfirmProvider';
+import { PersonComplete } from '@/lib/types/PersonComplete';
+import { deletePerson } from '@/lib/api/admin';
 import { ItemButton } from '../ItemButton';
-import { deletePerson } from '../../api/admin';
 
 type Props = {
   item: PersonComplete;
   refreschAction: () => void;
   onEdit: (person: PersonComplete) => void;
 };
+
+const maskCpf = (cpf: string) => {
+  if (cpf.length < 11) return cpf;
+  return `***.${cpf.slice(3, 6)}.${cpf.slice(6, 9)}-**`;
+};
+
 export const PersonItem = ({ item, refreschAction, onEdit }: Props) => {
+  const { confirm } = useConfirm();
+
   const handleDeleteButton = async () => {
-    if (confirm('Tem certeza que deseja excluir esta pessoa?')) {
-      await deletePerson(item.id_event, item.id_group, item.id);
+    const confirmed = await confirm({
+      title: 'Excluir pessoa',
+      message: `Tem certeza que deseja excluir "${item.name}"?`,
+      confirmLabel: 'Excluir',
+      destructive: true,
+    });
+
+    if (!confirmed) return;
+
+    const deleted = await deletePerson(item.id_event, item.id_group, item.id);
+    if (deleted) {
+      toast.success('Pessoa excluída');
       refreschAction();
+    } else {
+      toast.error('Não foi possível excluir a pessoa');
     }
   };
+
   return (
-    <div className="border border-gray-700 bg-700 bg-gray-900 rounded p-3 mb-3 flex items-center">
+    <div className="mb-3 flex items-center rounded-lg border border-gray-700 bg-gray-900 p-3">
       <div className="flex-1">
-        {item.name} (CPF: {item.cpf})
+        {item.name}{' '}
+        <span className="text-sm text-gray-400">(CPF: {maskCpf(item.cpf)})</span>
       </div>
       <ItemButton
         IconElement={FaRegEdit}
@@ -36,17 +62,14 @@ export const PersonItem = ({ item, refreschAction, onEdit }: Props) => {
 
 export const PersonItemSkeleton = () => {
   return (
-    <div
-      className="w-full h-16 bg-gray-700 rounded mb-3
-    bg-gradient-to-r from-gray-900 to-gray-950  animate-pulse"
-    />
+    <div className="mb-3 h-16 w-full animate-pulse rounded-lg bg-linear-to-r from-gray-800 to-gray-900" />
   );
 };
 
 export const PersonItemNotFound = () => {
   return (
-    <div className="text-center p-y4 text-gray-500">
-      Não há grupos pessoas nesse grupo.
+    <div className="py-8 text-center text-gray-500">
+      Não há pessoas neste grupo.
     </div>
   );
 };

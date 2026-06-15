@@ -1,14 +1,14 @@
-import { getCookie } from 'cookies-next';
-import { Event } from '../types/Event';
-import { Group } from '../types/Group';
-import { PersonComplete } from '../types/PersonComplete';
+import { getCookie } from 'cookies-next/client';
+import { Event } from '@/lib/types/Event';
+import { Group } from '@/lib/types/Group';
+import { PersonComplete } from '@/lib/types/PersonComplete';
 import { api } from './axios';
 //login
 export const login = async (password: string) => {
   try {
     const json = await api.post('admin/login', { password });
     return (json.data.token as string) ?? false;
-  } catch (error) {
+  } catch {
     return false;
   }
 };
@@ -81,7 +81,7 @@ type AddGroupData = {
   name: string;
 };
 export const addGroup = async (
-  eventId: Number,
+  eventId: number,
   data: AddGroupData
 ): Promise<Group | false> => {
   const token = getCookie('token');
@@ -95,7 +95,7 @@ type UpdateGroupData = {
   name: string;
 };
 export const updateGroup = async (
-  eventId: Number,
+  eventId: number,
   id: number,
   data: UpdateGroupData
 ): Promise<Group | false> => {

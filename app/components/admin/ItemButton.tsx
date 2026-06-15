@@ -9,6 +9,7 @@ type Props = {
   target?: string;
   replace?: boolean;
 };
+
 export const ItemButton = ({
   IconElement,
   onClick,
@@ -18,25 +19,37 @@ export const ItemButton = ({
   replace,
 }: Props) => {
   const content = (
-    <div className="p-3 flex flex-col justify-center gap-2 md:flex-row">
-      <div>
-        <IconElement />
-      </div>
-      {label && <div>{label}</div>}
-    </div>
+    <>
+      <IconElement aria-hidden />
+      {label && <span>{label}</span>}
+    </>
   );
+
+  const className =
+    'flex flex-col items-center justify-center gap-1 rounded p-3 text-sm transition-colors hover:bg-gray-800 md:flex-row md:gap-2';
+
+  if (href && !onClick) {
+    return (
+      <Link
+        href={href}
+        target={target}
+        replace={replace}
+        className={className}
+        aria-label={label}
+      >
+        {content}
+      </Link>
+    );
+  }
+
   return (
-    <div className="rounded hover:bg-gray-800">
-      {href && !onClick && (
-        <Link href={href} target={target} replace={replace}>
-          {content}
-        </Link>
-      )}
-      {!href && onClick && (
-        <div onClick={onClick} className="cursor-pointer">
-          {content}
-        </div>
-      )}
-    </div>
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${className} cursor-pointer`}
+      aria-label={label}
+    >
+      {content}
+    </button>
   );
 };
