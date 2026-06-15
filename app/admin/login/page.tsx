@@ -1,56 +1,77 @@
 'use client';
 
-import { Button } from '@/app/components/admin/Button';
-import { InputField } from '@/app/components/admin/InputField';
-import { login } from '@/app/components/api/admin';
-import { setCookie } from 'cookies-next';
+import { Button } from '@/app/components/ui/Button';
+import { InputField } from '@/app/components/ui/InputField';
+import { login } from '@/lib/api/admin';
+import { setCookie } from 'cookies-next/client';
 import { useRouter } from 'next/navigation';
-import { ChangeEvent, useState } from 'react';
+import { FormEvent, useState } from 'react';
+import { toast } from 'sonner';
 
 const Page = () => {
   const router = useRouter();
-  const [passwordInput, setPassordInput] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [warning, setWarning] = useState('');
-  const handleLoginButton = async () => {
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setLoading(true);
+    setError('');
+
     try {
-      if (passwordInput) {
-        setWarning('');
-        const token = await login(passwordInput);
-        if (!token) {
-          throw new Error('Token não obtido');
-        } else {
-          setCookie('token', token);
-          router.push('/admin');
-        }
-      } else {
-        throw new Error('Senha não informada');
+      if (!passwordInput) {
+        setError('Informe a senha');
+        return;
       }
-    } catch (error) {
-      setWarning('Erro ao tentar autenticação, tente mais tarde');
+
+      const token = await login(passwordInput);
+      if (!token) {
+        setError('Senha incorreta ou servidor indisponível');
+        toast.error('Não foi possível autenticar');
+        return;
+      }
+
+      setCookie('token', token, { path: '/' });
+      toast.success('Login realizado');
+      router.refresh();
+      router.push('/admin');
+    } catch {
+      setError('Erro ao tentar autenticação, tente mais tarde');
+      toast.error('Erro ao tentar autenticação');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="text-center py-4">
-      <p className="text-lg">Qual a Senha Secreta?</p>
-      <div className="mx-auto max-w-lg">
+    <div className="rounded-2xl border border-gray-700/80 bg-gray-900/90 p-6 shadow-2xl shadow-black/40 backdrop-blur-sm">
+      <h2 className="text-lg font-semibold text-white">Área do organizador</h2>
+      <p className="mt-1 text-sm text-gray-400">
+        Senha no formato{' '}
+        <span className="font-mono text-amber-400">DDMMAAAA</span> (data de hoje)
+      </p>
+
+      <form onSubmit={handleSubmit} className="mt-5 space-y-1">
         <InputField
           type="password"
+          name="password"
+          label="Senha"
           value={passwordInput}
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setPassordInput(e.target.value)
-          }
-          placeholder="Digite Sua Senha"
+          onChange={(e) => setPasswordInput(e.target.value)}
+          placeholder="Ex.: 15062026"
           disabled={loading}
+          errorMessage={error}
+          autoComplete="current-password"
         />
-        <Button onClick={handleLoginButton} value="Entrar" />
-
-        {warning && <div>{warning}</div>}
-      </div>
+        <Button
+          type="submit"
+          value="Entrar"
+          loading={loading}
+          disabled={loading}
+          className="mt-2"
+        />
+      </form>
     </div>
   );
 };

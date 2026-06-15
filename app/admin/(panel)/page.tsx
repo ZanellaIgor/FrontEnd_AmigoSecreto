@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
-import { pingAdmin } from '../components/api/server';
-import { AdminPage } from '../components/admin/AdminPage';
+import { pingAdmin } from '@/lib/api/server';
+import { AdminPage } from '@/app/components/admin/AdminPage';
 
 const Page = async () => {
   const logged = await pingAdmin();
